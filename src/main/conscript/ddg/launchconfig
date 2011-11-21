@@ -1,0 +1,13 @@
+[app]
+  version: 0.1.0
+  org: me.lessis
+  name: goose-app
+  class: gooose.Ddg
+[scala]
+  version: 2.9.1
+[repositories]
+  less:http://repo.lessis.me
+  local
+  maven-local
+  scala-tools-releases
+  maven-central

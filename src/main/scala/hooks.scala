@@ -1,0 +1,4 @@
+package goose
+
+object Hooks {
+}
