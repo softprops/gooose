@@ -6,7 +6,20 @@ package gooose
 class Ddg extends xsbti.AppMain {
   case class Exit(val code: Int) extends xsbti.Exit
   def run(config: xsbti.AppConfiguration) = {
-    println(config.arguments)
+    val tap = config.arguments match {
+      case Array("-w", path, cmd:_*) =>
+        Goose.tap(path) { chged =>
+          println(sys.process.Process(cmd)!!)
+        }
+      case Array("-c", conf) =>
+        Goose.collect(PathConfig(conf :: Nil)).goose
+      case _ => Goose.local.goose
+    }
+    Threads.fold({
+      tap.start
+    },{
+      tap.stop
+    })
     Exit(0)
   }
 }

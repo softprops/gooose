@@ -18,32 +18,30 @@ object Goose {
     def goose = Taps.listen(LocalConfig.triggers.toSeq)
   }
 
+  def collect(c: Config) = new {
+    def goose = Taps.listen(c.triggers)
+  }
+
   def local = LocalGoose
 
   def main(a: Array[String]) {
     val tap =
       a match {
-      case Array("l") =>
-        Goose.local.goose
-      case Array(path) =>
-        val t = new java.io.File(path)
-        t.createNewFile
-        Goose.tap(t.getPath) { println }.goose
-      case _ => sys.error("usage: path/to/file")
-    }
+        case Array("-l") =>
+          Goose.local.goose
+        case Array("-c", conf) =>
+          Goose.collect(PathConfig(conf :: Nil)).goose
+        case Array(path) =>
+          val t = new java.io.File(path)
+          t.createNewFile
+          Goose.tap(t.getPath) { println }.goose
+        case _ => sys.error("usage: path/to/file")
+      }
 
-    
-    Thread.currentThread.getName() match {
-      case "main" => 
-        tap.start
-      case _ =>
-        tap.start
-        def awaitInput {
-          try { Thread.sleep(1000) } catch { case _: InterruptedException => () }
-          if(System.in.available() <= 0) awaitInput
-        }
-        awaitInput
-        tap.stop
-    }
+    Threads.fold({
+      tap.start
+    }, {
+      tap.stop
+    })
   }
 }

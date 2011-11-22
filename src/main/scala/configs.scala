@@ -17,17 +17,17 @@ trait FileParser {
             PathTrigger(in.trim, None, cmd.trim)
           case line => sys.error("invalid line format %s" format line.toList)
         }
-      }
+      }.toSeq
     case _ => sys.error("%s does not exist" format path)
   }
 }
 
-object LocalConfig extends FileParser {
+object LocalConfig extends Config with FileParser {
   def triggers =
     parse(new File(System.getProperty("user.home"), ".gooose").getPath)
 }
 
-case class PathConfig(paths: Seq[String]) extends FileParser {
+case class PathConfig(paths: Seq[String]) extends Config with FileParser {
   def triggers = (Seq.empty[Trigger] /: paths)((a,e) =>
     a ++ parse(e)
   )
